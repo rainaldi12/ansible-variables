@@ -1,0 +1,45 @@
+- name: Quiz Playbook
+  hosts: pod-rainaldi12-managed2
+  become: true
+  vars:
+    web_pkg: apache2
+    web_Service: apache2
+    python_pkg: python3-urllib3
+    content_File: "adinusa lab quiz variable - rainaldi12"
+    dest_File: /var/www/html/index.html
+  tasks:
+    - block:
+      vars:
+        web_pkg: apache2
+        web_Service: apache2
+        python_pkg: python3-urllib3
+        content_File: "adinusa lab quiz variable - rainaldi12"
+        dest_File: /var/www/html/index.html
+
+      - name: Required packages are installed and up to date
+        apt:
+          update_cache: yes
+          force_apt_get: yes
+          name:
+            - "{{web_pkg}}"
+            - "{{python_pkg}}"
+          state: latest
+
+      - name: the {{web_Service}} service is started and enabled
+        service:
+          name: "{{web_Service}}"
+          state: started
+          enabled: true
+
+      - name: the final task for generating web content
+        copy:
+          content: "{{content_File}}"
+          dest: "{{dest_File}}"
+
+- name: test the web service
+  hosts: localhost
+  tasks:
+    - name: Ensure the webserver is reacheable
+      uri:
+        url: http://pod-rainaldi12-managed2/index.html
+        status_code: 200
